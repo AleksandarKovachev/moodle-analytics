@@ -1,0 +1,41 @@
+server:
+  port: 8080
+spring:
+  application:
+    name: MoodleAnalytics
+  main:
+    allow-bean-definition-overriding: true
+  datasource:
+    driverClassName: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost/moodle-analytics
+    username: root
+    password: root
+  jpa:
+    database: mysql
+    hibernate.ddl-auto: update
+    generate-ddl: true
+    show-sql: true
+  liquibase:
+    change-log: classpath:liquibase/changelog.yaml
+management:
+  endpoint:
+    health:
+      enabled: true
+      show-details: always
+    info:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: health,info,caches,metrics
+elasticsearch:
+  clustername: podcast
+  host: localhost
+  port: 9300
+logging:
+  level:
+    org:
+      springframework:
+        data:
+          elasticsearch:
+            core: DEBUG
