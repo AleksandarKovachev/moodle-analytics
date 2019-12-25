@@ -1,0 +1,15 @@
+databaseChangeLog:
+  - changeSet:
+      id: insert_roles
+      author: aleksandar kovachev
+      changes:
+        - sql:
+            sql: insert into role (name) values ('ADMIN')
+        - sql:
+            sql: insert into role (name) values ('USER')
+  - changeSet:
+      id: inser_admin_user
+      author: aleksandar kovachev
+      changes:
+        - sql:
+            sql: insert into user (username, password, email, enabled, account_non_expired, credentials_non_expired, account_non_locked, role_id, version) values ('admin', '$2y$10$.ssqRLfN.7jke.4fPPnREOafVRdgxyeYOzjI7yL2OEScUJFHlcD5G', 'admin@admin.com', 1, 1, 1, 1, 1, 0)

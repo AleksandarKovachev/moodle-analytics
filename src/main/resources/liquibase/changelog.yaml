@@ -1,5 +1,7 @@
 databaseChangeLog:
-- property:
-    name: liquibase.schema
-    value: moodle-analytics-changelog
-    dbms: mysql
+  - property:
+      name: liquibase.schema
+      value: moodle-analytics-changelog
+      dbms: mysql
+  - include:
+      file: liquibase/v1/changelog.yaml

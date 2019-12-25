@@ -1,0 +1,42 @@
+databaseChangeLog:
+  - changeSet:
+      id: user_primary_key
+      author: aleksandar kovachev
+      changes:
+        - addPrimaryKey:
+            columnNames: id
+            constraintName: id_pk
+            tableName: user
+  - changeSet:
+      id: user_auto_increment
+      author: aleksandar kovachev
+      changes:
+        - addAutoIncrement:
+            columnDataType: int
+            columnName: id
+            incrementBy: 1
+            tableName: user
+  - changeSet:
+      id: role_primary_key
+      author: aleksandar kovachev
+      changes:
+        - addPrimaryKey:
+            columnNames: id
+            constraintName: id_pk
+            tableName: role
+  - changeSet:
+      id: role_auto_increment
+      author: aleksandar kovachev
+      changes:
+        - addAutoIncrement:
+            columnDataType: int
+            columnName: id
+            incrementBy: 1
+            tableName: role
+  - changeSet:
+      id: user_unique_constraints
+      author: aleksandar kovachev
+      changes:
+        - addUniqueConstraint:
+            columnNames: username, email
+            tableName: user
