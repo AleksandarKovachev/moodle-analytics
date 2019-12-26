@@ -1,0 +1,57 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-spring4-4.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{/layout/BaseLayout}">
+<head>
+    <title th:text="#{input.login}"></title>
+    <link type="text/css" rel="stylesheet" th:href="@{/css/login.css}"
+          media="screen,projection"/>
+</head>
+<body>
+<section layout:fragment="body">
+
+    <div class="container h-100">
+
+        <div th:if="${param.error != null}" class="d-flex justify-content-center alert alert-danger" role="alert"
+             th:text="#{error.login}"></div>
+
+        <div class="d-flex justify-content-center h-100">
+            <div class="user_card">
+                <div class="d-flex justify-content-center">
+                    <div class="brand_logo_container">
+                        <img src="https://lh3.googleusercontent.com/WETi4kiHx6KfyGBDsZ1-jgPdAATt8n6Fq4tK05TOBe_z6NxsoWjrGkDyy8PIW29pvJw"
+                             class="brand_logo" alt="Logo">
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-center form_container">
+                    <form th:action="@{/login}" method="POST">
+                        <div class="input-group mb-3">
+                            <div class="input-group-append">
+                                <span class="input-group-text"><i class="fas fa-user"></i></span>
+                            </div>
+                            <input type="text" class="form-control input_user" id="username"
+                                   name="username" th:placeholder="#{input.username}">
+                        </div>
+
+                        <div class="input-group mb-2">
+                            <div class="input-group-append">
+                                <span class="input-group-text"><i class="fas fa-key"></i></span>
+                            </div>
+                            <input type="password" class="form-control input_pass" id="password"
+                                   name="password" th:placeholder="#{input.password}">
+                        </div>
+
+                        <div class="d-flex justify-content-center mt-3 login_container">
+                            <button type="button" name="button" class="btn login_btn"
+                                    th:text="#{input.login}"></button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+</html>
