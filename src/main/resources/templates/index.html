@@ -1,0 +1,19 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-spring4-4.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{/layout/BaseLayout}">
+<head>
+    <title th:text="#{input.login}"></title>
+    <link type="text/css" rel="stylesheet" th:href="@{/css/login.css}"
+          media="screen,projection"/>
+</head>
+<body>
+<section layout:fragment="body">
+
+    <div class="container d-flex align-items-center flex-column">
+        <img th:src="@{/images/moodle-analytics.png}" class="img-fluid" alt="Logo">
+    </div>
+</section>
+</body>
+</html>
