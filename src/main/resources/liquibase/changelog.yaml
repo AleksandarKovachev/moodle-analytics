@@ -4,4 +4,6 @@ databaseChangeLog:
       value: moodle-analytics-changelog
       dbms: mysql
   - include:
-      file: liquibase/v1/changelog.yaml
+      file: liquibase/authorization/changelog.yaml
+  - include:
+      file: liquibase/configuration/changelog.yaml

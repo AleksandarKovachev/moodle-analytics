@@ -1,0 +1,9 @@
+databaseChangeLog:
+  - include:
+      file: liquibase/authorization/tables.yaml
+  - include:
+      file: liquibase/authorization/pks.yaml
+  - include:
+      file: liquibase/authorization/fks.yaml
+  - include:
+      file: liquibase/authorization/data.yaml

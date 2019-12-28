@@ -4,11 +4,11 @@ databaseChangeLog:
       author: aleksandar kovachev
       changes:
         - sql:
-            sql: insert into role (name) values ('ADMIN')
+            sql: insert into role (name) values ('ROLE_ADMIN')
         - sql:
-            sql: insert into role (name) values ('USER')
+            sql: insert into role (name) values ('ROLE_USER')
   - changeSet:
-      id: inser_admin_user
+      id: insert_admin_user
       author: aleksandar kovachev
       changes:
         - sql:

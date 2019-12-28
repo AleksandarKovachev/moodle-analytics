@@ -1,0 +1,7 @@
+databaseChangeLog:
+  - changeSet:
+      id: insert_log_directory_configuration
+      author: aleksandar kovachev
+      changes:
+        - sql:
+            sql: insert into configuration (name, value, last_modified_by, version) values ('logDirectory', 'C:\Users\PC\Documents\moodle-logs', 'liquibase', 0)

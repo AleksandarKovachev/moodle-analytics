@@ -1,0 +1,7 @@
+databaseChangeLog:
+  - include:
+      file: liquibase/configuration/tables.yaml
+  - include:
+      file: liquibase/configuration/pks.yaml
+  - include:
+      file: liquibase/configuration/data.yaml

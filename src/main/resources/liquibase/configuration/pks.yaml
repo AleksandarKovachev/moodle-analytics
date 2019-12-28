@@ -1,0 +1,18 @@
+databaseChangeLog:
+  - changeSet:
+      id: configuration_primary_key
+      author: aleksandar kovachev
+      changes:
+        - addPrimaryKey:
+            columnNames: id
+            constraintName: id_pk
+            tableName: configuration
+  - changeSet:
+      id: configuration_auto_increment
+      author: aleksandar kovachev
+      changes:
+        - addAutoIncrement:
+            columnDataType: int
+            columnName: id
+            incrementBy: 1
+            tableName: configuration
