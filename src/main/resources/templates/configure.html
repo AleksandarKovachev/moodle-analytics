@@ -5,11 +5,90 @@
       layout:decorate="~{/layout/BaseLayout}">
 <head>
     <title th:text="#{menu.configure}"></title>
+    <link rel="stylesheet" crossorigin="anonymous"
+          href="https://cdn.rawgit.com/FezVrasta/snackbarjs/1.1.0/dist/snackbar.min.css">
+    <link rel="stylesheet" crossorigin="anonymous"
+          href="http://fezvrasta.github.io/snackbarjs/themes-css/material.css">
 </head>
 <body>
 <section layout:fragment="body">
     <div class="container d-flex align-items-center flex-column">
+
+        <div class="card">
+            <h3 class="card-header text-center font-weight-bold text-uppercase py-4" th:text="#{menu.configure}"></h3>
+            <div class="card-body">
+                <div id="table" class="table-editable">
+                    <table class="table table-bordered table-responsive-md text-center">
+                        <thead>
+                        <tr>
+                            <th class="text-center" th:text="#{table.number}"></th>
+                            <th class="text-center" th:text="#{configuration.name}"></th>
+                            <th class="text-center" th:text="#{configuration.value}"></th>
+                            <th class="text-center" th:text="#{configuration.lastModifiedBy}"></th>
+                            <th class="text-center" th:text="#{configuration.updatedTimestamp}"></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <th:block th:each="configuration, iteration : ${configurations}">
+                            <tr>
+                                <td class="pt-3-half" contenteditable="false" th:text="${iteration.index + 1}"></td>
+                                <td class="pt-3-half" contenteditable="false" th:text="${configuration.name}"></td>
+
+                                <td th:if="${configuration.id == 1}" th:id="'configuration_' + ${configuration.id}"
+                                    class="pt-3-half" contenteditable="true" th:text="${configuration.value}"></td>
+
+                                <td class="pt-3-half" th:if="${configuration.id == 2}">
+                                    <select class="form-control"
+                                            th:onchange="'javascript:updateConfiguration(\'' + ${configuration.id} + '\', this.options[this.selectedIndex].value);'">
+                                        <option th:each="syncJobValue, iteration : ${syncJobValues}"
+                                                th:selected="${syncJobValue.value == configuration.value}"
+                                                th:value="${syncJobValue.key}"
+                                                th:text="${syncJobValue.value}"></option>
+                                    </select>
+                                </td>
+
+                                <td class="pt-3-half" contenteditable="false"
+                                    th:text="${configuration.lastModifiedBy}"></td>
+                                <td class="pt-3-half" contenteditable="false"
+                                    th:text="${#dates.format(configuration.updatedTimestamp, 'dd.MM.yyyy HH:mm:ss')}"></td>
+                            </tr>
+                        </th:block>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
+</section>
+
+<section layout:fragment="js">
+    <script src="https://cdn.rawgit.com/FezVrasta/snackbarjs/1.1.0/dist/snackbar.min.js"></script>
+    <script th:inline="javascript">
+        $(document).ready(function() {
+           $('[id^="configuration_"]').on('blur', function(event){
+                var configurationId = this.id.split("configuration_")[1];
+				updateConfiguration(configurationId, $(this).text());
+            })
+        });
+
+        function updateConfiguration(id, value) {
+            var regex = /^[a-zA-Z]:\\([a-zA-Z0-9.\-*.+]+([ ][a-zA-Z0-9.\-*.+]+)*\\)*([a-zA-Z0-9.\-*.+]+([ ][a-zA-Z0-9.\-*.+]+)*)*$/;
+            if(!value || id == 1 && !regex.test(value)) {
+                $.snackbar({content: /*[[#{invalid.value}]]*/, style: "toast", timeout: 2000});
+                return;
+            }
+            $.ajax({
+                type : 'POST',
+                url : "/configure/" + id + "?value=" + encodeURIComponent(value),
+                data : JSON.stringify({
+                    "value": value
+                }),
+                success : function(response) {
+                    $.snackbar({content: /*[[#{successfully.saved}]]*/, style: "toast", timeout: 2000});
+                }
+            });
+        }
+    </script>
 </section>
 </body>
 </html>
