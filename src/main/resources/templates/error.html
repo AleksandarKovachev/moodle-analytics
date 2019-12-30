@@ -1,0 +1,25 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-spring4-4.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{/layout/BaseLayout}">
+<head>
+<title th:text="${title}"></title>
+<link type="text/css" rel="stylesheet" th:href="@{/css/error.css}"
+	media="screen,projection" />
+</head>
+<body>
+	<section layout:fragment="body">
+		<div id="error">
+			<div class="error">
+				<div class="error-code">
+					<h1>
+						[[${code[0]}]]<span>[[${code[1]}]]</span>[[${code[2]}]]
+					</h1>
+				</div>
+				<h2 th:text="${message}"></h2>
+			</div>
+		</div>
+	</section>
+</body>
+</html>
