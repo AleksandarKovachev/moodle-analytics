@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 @Component
-public interface LogRecordRepository extends ElasticsearchRepository<LogRecord, String> {
+public interface LogRecordRepository extends ElasticsearchRepository<LogRecord, String>, LogRecordCustomRepository {
 
     List<LogRecord> findByFileName(String fileName);
 

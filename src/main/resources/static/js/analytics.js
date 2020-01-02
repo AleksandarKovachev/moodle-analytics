@@ -1,67 +1,109 @@
-var data = [],
-    n = 1000000,
-    i;
-for (i = 0; i < n; i += 1) {
-    data.push([
-        Math.pow(Math.random(), 2) * 100,
-        Math.pow(Math.random(), 2) * 100
-    ]);
-}
+var chart;
 
-if (!Highcharts.Series.prototype.renderCanvas) {
-    throw 'Module not loaded';
-}
-
-console.time('scatter');
-Highcharts.chart('container', {
-
-    chart: {
-        zoomType: 'xy',
-        height: '100%'
-    },
-
-    boost: {
-        useGPUTranslations: true,
-        usePreAllocated: true
-    },
-
-    xAxis: {
-        min: 0,
-        max: 100,
-        gridLineWidth: 1
-    },
-
-    yAxis: {
-        // Renders faster when we don't have to compute min and max
-        min: 0,
-        max: 100,
-        minPadding: 0,
-        maxPadding: 0,
-        title: {
-            text: null
-        }
-    },
-
-    title: {
-        text: 'Scatter chart with ' + Highcharts.numberFormat(data.length, 0, ' ') + ' points'
-    },
-
-    legend: {
-        enabled: false
-    },
-
-    series: [{
-        type: 'scatter',
-        color: 'rgb(152, 0, 67)',
-        fillOpacity: 0.1,
-        data: data,
-        marker: {
-            radius: 1
+$(document).ready(function() {
+    chart = Highcharts.chart('container', {
+        chart: {
+            scrollablePlotArea: {
+                minWidth: 700
+            },
+            events: {
+                load: requestData
+            }
         },
+        title: {
+            text: 'Daily sessions at www.highcharts.com'
+        },
+        subtitle: {
+            text: 'Source: Google Analytics'
+        },
+        xAxis: {
+            tickInterval: 7 * 24 * 3600 * 1000, // one week
+            tickWidth: 0,
+            type: 'datetime',
+            gridLineWidth: 1,
+            labels: {
+                align: 'left',
+                x: 3,
+                y: -3
+            }
+        },
+        yAxis: [{ // left y axis
+            title: {
+                text: "Log records"
+            },
+            labels: {
+                align: 'left',
+                x: 3,
+                y: 16,
+                format: '{value:.,0f}'
+            },
+            showFirstLabel: false
+        }, { // right y axis
+            linkedTo: 0,
+            gridLineWidth: 0,
+            opposite: true,
+            title: {
+                text: null
+            },
+            labels: {
+                align: 'right',
+                x: -3,
+                y: 16,
+                format: '{value:.,0f}'
+            },
+            showFirstLabel: false
+        }],
         tooltip: {
-            followPointer: false,
-            pointFormat: '[{point.x:.1f}, {point.y:.1f}]'
+            shared: true,
+            crosshairs: true
+        },
+        plotOptions: {
+            series: {
+                cursor: 'pointer',
+                point: {
+                    events: {
+                        click: function (e) {
+                            hs.htmlExpand(null, {
+                                pageOrigin: {
+                                    x: e.pageX || e.clientX,
+                                    y: e.pageY || e.clientY
+                                },
+                                headingText: this.series.name,
+                                maincontentText: Highcharts.dateFormat('%A, %b %e, %Y', this.x) + ':<br/> ' +
+                                    this.y + ' sessions',
+                                width: 200
+                            });
+                        }
+                    }
+                },
+                marker: {
+                    lineWidth: 1
+                }
+            }
         }
-    }]
-
+    });
 });
+
+function requestData() {
+    $.ajax({
+        url: '/logRecord',
+        type: "GET",
+        success: function(response) {
+            var data = [];
+
+            $.each(response, function(index, logRecord) {
+                data.push({x:new Date(logRecord.date), y: logRecord.logRecordsCount});
+            });
+
+            chart.addSeries({
+                name: "logRecords",
+                lineWidth: 4,
+                marker: {
+                  radius: 4
+                },
+                data: data
+            });
+        },
+        cache: true
+    });
+}
