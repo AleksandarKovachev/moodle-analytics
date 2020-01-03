@@ -7,11 +7,41 @@
     <title th:text="#{menu.analytics}"></title>
     <link type="text/css" rel="stylesheet" th:href="@{/css/analytics.css}" media="screen,projection"/>
     <link rel="stylesheet" type="text/css" href="https://www.highcharts.com/media/com_demo/css/highslide.css"/>
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/css/bootstrap-datepicker.min.css">
 </head>
 <body>
 <section layout:fragment="body">
-    <div class="container d-flex align-items-center flex-column">
-        <div id="container"></div>
+    <div class="container">
+        <div class="row justify-content-center top-buffer">
+            <div class="input-group">
+                <div class="input-group-prepend">
+                    <label class="input-group-text" for="reportTypeSelect" th:text="#{report.type}"></label>
+                </div>
+                <select class="form-control input-sm" id="reportTypeSelect">
+                    <option value="All" th:text="#{report.all}" selected></option>
+                    <option value="DAILY" th:text="#{report.daily}"></option>
+                    <option value="WEEKLY" th:text="#{report.weekly}"></option>
+                    <option value="TWO_WEEKS" th:text="#{report.two.weeks}"></option>
+                    <option value="MONTHLY" th:text="#{report.monthly}"></option>
+                    <option value="SIX_MONTHS" th:text="#{report.six.months}"></option>
+                    <option value="YEARLY" th:text="#{report.yearly}"></option>
+                    <option value="TWO_YEARS" th:text="#{report.two.years}"></option>
+                    <option value="CUSTOM" th:text="#{report.custom}"></option>
+                </select>
+            </div>
+        </div>
+
+        <div id="customReportType" class="row justify-content-center top-buffer" style="display: none;">
+            <input type="text" class="form-control datepicker col"
+                   id="fromDate" th:placeholder="#{input.fromDate}">
+            <input type="text" class="form-control datepicker col offset-md-1"
+                   id="toDate" th:placeholder="#{input.toDate}">
+        </div>
+
+        <div class="row justify-content-md-center">
+            <div id="container"></div>
+        </div>
     </div>
 </section>
 
@@ -25,6 +55,16 @@
     <script src="https://code.highcharts.com/modules/accessibility.js"></script>
     <script src="https://www.highcharts.com/media/com_demo/js/highslide-full.min.js"></script>
     <script src="https://www.highcharts.com/media/com_demo/js/highslide.config.js" charset="utf-8"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+    <script th:inline="javascript">
+        $('#toDate').datepicker({format: 'dd/mm/yyyy'});
+        $('#fromDate').datepicker({format: 'dd/mm/yyyy', endDate: '-1d'});
+        var analyticsEventTitle = [[#{analytics.events.title}]];
+        var analyticsEventSubtitle = [[#{analytics.events.subtitle}]];
+        var analyticsEventDates = [[#{analytics.dates}]];
+        var analyticsLogRecords = [[#{analytics.log.records}]];
+        var errorDateInput = [[#{error.date.inputs}]];
+    </script>
     <script th:src="@{/js/analytics.js}"></script>
 </section>
 </body>

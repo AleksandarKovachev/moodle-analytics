@@ -1,26 +1,73 @@
 var chart;
 
 $(document).ready(function() {
-    chart = Highcharts.chart('container', {
+    $('#reportTypeSelect').on('change', function() {
+        if (this.value != 'CUSTOM') {
+            initializeChart(this.value);
+            $("#customReportType").hide();
+        } else {
+            $("#customReportType").show();
+        }
+    });
+
+    $('#fromDate').change(function() {
+        var fromDate = $('#fromDate').data('datepicker').getDate();
+        var toDate = $('#toDate').data('datepicker').getDate();
+
+        if (toDate) {
+            if (fromDate > toDate) {
+                alert(errorDateInput);
+                $('#fromDate').val("").datepicker("update");
+            } else {
+                initializeChart('CUSTOM', fromDate.getTime(), toDate.getTime());
+            }
+        }
+    });
+
+    $('#toDate').change(function() {
+        var fromDate = $('#fromDate').data('datepicker').getDate();
+        var toDate = $('#toDate').data('datepicker').getDate();
+
+        if (fromDate) {
+            if (fromDate > toDate) {
+                alert(errorDateInput);
+                $('#toDate').val("").datepicker("update");
+            } else {
+                initializeChart('CUSTOM', fromDate.getTime(), toDate.getTime());
+            }
+        }
+    });
+
+    initializeChart('ALL');
+});
+
+function initializeChart(reportType, fromDate, toDate) {
+    chart = new Highcharts.Chart({
         chart: {
+            renderTo: 'container',
+            type: 'line',
+            reflow: true,
             scrollablePlotArea: {
                 minWidth: 700
             },
             events: {
-                load: requestData
+                load: requestData(reportType, fromDate, toDate)
             }
         },
         title: {
-            text: 'Daily sessions at www.highcharts.com'
+            text: analyticsEventTitle
         },
         subtitle: {
-            text: 'Source: Google Analytics'
+            text: analyticsEventSubtitle
         },
         xAxis: {
-            tickInterval: 7 * 24 * 3600 * 1000, // one week
+            tickInterval: getTickTime(reportType, fromDate, toDate),
             tickWidth: 0,
             type: 'datetime',
             gridLineWidth: 1,
+            title: {
+                text: analyticsEventDates
+            },
             labels: {
                 align: 'left',
                 x: 3,
@@ -29,7 +76,7 @@ $(document).ready(function() {
         },
         yAxis: [{ // left y axis
             title: {
-                text: "Log records"
+                text: analyticsLogRecords
             },
             labels: {
                 align: 'left',
@@ -82,11 +129,34 @@ $(document).ready(function() {
             }
         }
     });
-});
+}
 
-function requestData() {
+function getTickTime(reportType, fromDate, toDate) {
+    switch(reportType) {
+      case "ALL":
+      case "TWO_YEARS":
+      case "YEARLY":
+      case "SIX_MONTHS":
+        return 2592000000;
+      case "MONTHLY":
+        return 604800000;
+      case "TWO_WEEKS":
+      case "WEEKLY":
+          return 86400000;
+      case "DAILY":
+        return 3600000;
+      default:
+        return 604800000;
+    }
+}
+
+function requestData(reportType, fromDate, toDate) {
+    var requestParams = "?reportType=" + reportType;
+    if (fromDate && toDate) {
+        requestParams += "&fromDate=" + fromDate + "&toDate=" + toDate;
+    }
     $.ajax({
-        url: '/logRecord',
+        url: '/logRecord' + requestParams,
         type: "GET",
         success: function(response) {
             var data = [];
@@ -96,7 +166,7 @@ function requestData() {
             });
 
             chart.addSeries({
-                name: "logRecords",
+                name: analyticsLogRecords,
                 lineWidth: 4,
                 marker: {
                   radius: 4
