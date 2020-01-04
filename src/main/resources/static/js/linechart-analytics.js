@@ -1,9 +1,9 @@
-var chart;
+var lineChart;
 
 $(document).ready(function() {
-    $('#reportTypeSelect').on('change', function() {
+    $('#lineChartReportTypeSelect').on('change', function() {
         if (this.value != 'CUSTOM') {
-            initializeChart(this.value);
+            initializeLineChart(this.value);
             $("#customReportType").hide();
         } else {
             $("#customReportType").show();
@@ -19,7 +19,7 @@ $(document).ready(function() {
                 alert(errorDateInput);
                 $('#fromDate').val("").datepicker("update");
             } else {
-                initializeChart('CUSTOM', fromDate.getTime(), toDate.getTime());
+                initializeLineChart('CUSTOM', fromDate.getTime(), toDate.getTime());
             }
         }
     });
@@ -33,25 +33,22 @@ $(document).ready(function() {
                 alert(errorDateInput);
                 $('#toDate').val("").datepicker("update");
             } else {
-                initializeChart('CUSTOM', fromDate.getTime(), toDate.getTime());
+                initializeLineChart('CUSTOM', fromDate.getTime(), toDate.getTime());
             }
         }
     });
 
-    initializeChart('ALL');
+    initializeLineChart('ALL');
 });
 
-function initializeChart(reportType, fromDate, toDate) {
-    chart = new Highcharts.Chart({
+function initializeLineChart(reportType, fromDate, toDate) {
+    lineChart = new Highcharts.Chart({
         chart: {
-            renderTo: 'container',
+            renderTo: 'linechart',
             type: 'line',
             reflow: true,
-            scrollablePlotArea: {
-                minWidth: 700
-            },
             events: {
-                load: requestData(reportType, fromDate, toDate)
+                load: requestLineChartData(reportType, fromDate, toDate)
             }
         },
         title: {
@@ -150,13 +147,13 @@ function getTickTime(reportType, fromDate, toDate) {
     }
 }
 
-function requestData(reportType, fromDate, toDate) {
+function requestLineChartData(reportType, fromDate, toDate) {
     var requestParams = "?reportType=" + reportType;
     if (fromDate && toDate) {
         requestParams += "&fromDate=" + fromDate + "&toDate=" + toDate;
     }
     $.ajax({
-        url: '/logRecord' + requestParams,
+        url: '/logRecord/lineChart' + requestParams,
         type: "GET",
         success: function(response) {
             var data = [];
@@ -165,7 +162,7 @@ function requestData(reportType, fromDate, toDate) {
                 data.push({x:new Date(logRecord.date), y: logRecord.logRecordsCount});
             });
 
-            chart.addSeries({
+            lineChart.addSeries({
                 name: analyticsLogRecords,
                 lineWidth: 4,
                 marker: {

@@ -39,8 +39,10 @@ public class ParseLogService {
                     try (BufferedReader reader = new BufferedReader(new BufferedReader(new InputStreamReader(
                             new FileInputStream(filePath.toFile()), StandardCharsets.UTF_8)))) {
                         String line;
+                        long recordSequence = 1;
                         while ((line = reader.readLine()) != null) {
-                            processLine(filePath, line);
+                            processLine(recordSequence, filePath, line, logDirectoryPath);
+                            recordSequence++;
                         }
                     } catch (IOException e) {
                         log.error("An error has occurred while reading file: " + filePath, e);
@@ -52,7 +54,7 @@ public class ParseLogService {
         }
     }
 
-    private void processLine(Path filePath, String line) {
+    private void processLine(long recordSequence, Path filePath, String line, String logDirectoryPath) {
         String date = line.substring(1, line.lastIndexOf("\""));
         String currentLine = line.substring(line.lastIndexOf("\"") + 2);
         String[] columns = currentLine.split(",");
@@ -71,9 +73,11 @@ public class ParseLogService {
         logRecord.setOrigin(columns[4]);
         logRecord.setIpAddress(columns[5]);
 
+        logRecord.setRecordSequence(recordSequence);
         logRecord.setCreatedTimestamp(new Date());
         logRecord.setFileDate(new Date(filePath.toFile().lastModified()));
         logRecord.setFileName(filePath.getFileName().toString());
+        logRecord.setDirectory(logDirectoryPath);
 
         logRecordRepository.save(logRecord);
     }

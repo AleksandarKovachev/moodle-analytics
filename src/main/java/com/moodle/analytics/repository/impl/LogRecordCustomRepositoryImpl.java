@@ -1,17 +1,21 @@
 package com.moodle.analytics.repository.impl;
 
-import com.moodle.analytics.constant.ReportType;
+import com.moodle.analytics.constant.LineChartReportType;
+import com.moodle.analytics.constant.PieChartReportType;
 import com.moodle.analytics.repository.LogRecordCustomRepository;
 import com.moodle.analytics.resource.LogRecordByDate;
+import com.moodle.analytics.resource.PieLogRecord;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.aggregations.Aggregation;
+import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramAggregationBuilder;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramInterval;
 import org.elasticsearch.search.aggregations.bucket.histogram.InternalDateHistogram;
 import org.elasticsearch.search.aggregations.bucket.range.DateRangeAggregationBuilder;
 import org.elasticsearch.search.aggregations.bucket.range.Range;
+import org.elasticsearch.search.aggregations.bucket.terms.StringTerms;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
@@ -25,8 +29,8 @@ public class LogRecordCustomRepositoryImpl implements LogRecordCustomRepository 
     private ElasticsearchTemplate elasticsearchTemplate;
 
     @Override
-    public List<LogRecordByDate> getLogRecordsByDate(ReportType reportType, Long fromDate, Long toDate) {
-        DateRangeAggregationBuilder dateRangeAggregationBuilder = prepareDateRangeAggregation(reportType, fromDate, toDate);
+    public List<LogRecordByDate> getLogRecordsByDate(LineChartReportType lineChartReportType, Long fromDate, Long toDate) {
+        DateRangeAggregationBuilder dateRangeAggregationBuilder = prepareDateRangeAggregation(lineChartReportType, fromDate, toDate);
 
         DateHistogramAggregationBuilder dateHistogramAggregation = AggregationBuilders.dateHistogram("date")
                 .minDocCount(0)
@@ -61,18 +65,32 @@ public class LogRecordCustomRepositoryImpl implements LogRecordCustomRepository 
                 .collect(Collectors.toList());
     }
 
-    private DateRangeAggregationBuilder prepareDateRangeAggregation(ReportType reportType, Long fromDate, Long toDate) {
+    @Override
+    public List<PieLogRecord> getLogRecordsForPieChart(PieChartReportType reportType) {
+        SearchResponse response = elasticsearchTemplate.getClient()
+                .prepareSearch("log_record")
+                .setQuery(QueryBuilders.matchAllQuery())
+                .addAggregation(AggregationBuilders.terms("report").field(reportType.getField() + ".keyword"))
+                .execute().actionGet();
+        List<StringTerms.Bucket> buckets = ((StringTerms) response.getAggregations().asMap().get("report")).getBuckets();
+        return buckets
+                .stream()
+                .map(bucket -> new PieLogRecord(bucket.getKeyAsString(), bucket.getDocCount()))
+                .collect(Collectors.toList());
+    }
+
+    private DateRangeAggregationBuilder prepareDateRangeAggregation(LineChartReportType lineChartReportType, Long fromDate, Long toDate) {
         DateRangeAggregationBuilder dateAggregation = AggregationBuilders.dateRange("date_range").field("recordDate");
-        if (reportType == ReportType.CUSTOM) {
+        if (lineChartReportType == LineChartReportType.CUSTOM) {
             dateAggregation.addRange(fromDate, toDate);
             return dateAggregation;
-        } else if (reportType == ReportType.ALL) {
+        } else if (lineChartReportType == LineChartReportType.ALL) {
             return null;
         }
 
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(new Date());
-        switch (reportType) {
+        switch (lineChartReportType) {
             case DAILY:
                 calendar.add(Calendar.DAY_OF_MONTH, -1);
                 break;

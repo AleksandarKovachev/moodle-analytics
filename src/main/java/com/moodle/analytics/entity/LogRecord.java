@@ -34,7 +34,6 @@ public class LogRecord {
 
     private String origin;
 
-    @Field(type = FieldType.Ip)
     private String ipAddress;
 
     private String fileName;
