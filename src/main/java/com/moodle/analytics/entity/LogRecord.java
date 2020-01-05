@@ -21,6 +21,8 @@ public class LogRecord {
 
     private Long recordSequence;
 
+    private String rawLine;
+
     @Field(type = FieldType.Date)
     private Date recordDate;
 
@@ -35,6 +37,8 @@ public class LogRecord {
     private String origin;
 
     private String ipAddress;
+
+    private boolean isError;
 
     private String fileName;
 

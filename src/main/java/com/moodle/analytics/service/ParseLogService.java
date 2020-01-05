@@ -8,7 +8,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -41,8 +44,12 @@ public class ParseLogService {
                         String line;
                         long recordSequence = 1;
                         while ((line = reader.readLine()) != null) {
-                            processLine(recordSequence, filePath, line, logDirectoryPath);
+                            LogRecord logRecord = getLogRecord(logDirectoryPath, line, filePath, recordSequence);
+
+                            processLine(logRecord, line);
+
                             recordSequence++;
+                            logRecordRepository.save(logRecord);
                         }
                     } catch (IOException e) {
                         log.error("An error has occurred while reading file: " + filePath, e);
@@ -54,32 +61,41 @@ public class ParseLogService {
         }
     }
 
-    private void processLine(long recordSequence, Path filePath, String line, String logDirectoryPath) {
+    private LogRecord getLogRecord(String logDirectoryPath, String line, Path filePath, long recordSequence) {
+        LogRecord logRecord = new LogRecord();
+        logRecord.setRecordSequence(recordSequence);
+        logRecord.setRawLine(line);
+        logRecord.setCreatedTimestamp(new Date());
+        logRecord.setFileDate(new Date(filePath.toFile().lastModified()));
+        logRecord.setFileName(filePath.getFileName().toString());
+        logRecord.setDirectory(logDirectoryPath);
+        return logRecord;
+    }
+
+    public void processLine(LogRecord logRecord, String line) {
         String date = line.substring(1, line.lastIndexOf("\""));
         String currentLine = line.substring(line.lastIndexOf("\"") + 2);
         String[] columns = currentLine.split(",");
 
         if (columns.length != 6) {
             log.error("The line '" + line + "' is with not proper format.");
+            logRecord.setError(true);
             return;
         }
 
-        LogRecord logRecord = new LogRecord();
-        logRecord.setRecordDate(getLogDate(date, line));
+        Date logDate = getLogDate(date, line);
+        if (logDate == null) {
+            logRecord.setError(true);
+            return;
+        }
+
+        logRecord.setRecordDate(logDate);
         logRecord.setEventContext(columns[0]);
         logRecord.setComponent(columns[1]);
         logRecord.setEventName(columns[2]);
         logRecord.setDescription(columns[3]);
         logRecord.setOrigin(columns[4]);
         logRecord.setIpAddress(columns[5]);
-
-        logRecord.setRecordSequence(recordSequence);
-        logRecord.setCreatedTimestamp(new Date());
-        logRecord.setFileDate(new Date(filePath.toFile().lastModified()));
-        logRecord.setFileName(filePath.getFileName().toString());
-        logRecord.setDirectory(logDirectoryPath);
-
-        logRecordRepository.save(logRecord);
     }
 
     private Date getLogDate(String value, String line) {

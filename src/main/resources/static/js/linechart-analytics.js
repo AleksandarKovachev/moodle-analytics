@@ -103,6 +103,7 @@ function initializeLineChart(reportType, fromDate, toDate) {
         },
         plotOptions: {
             series: {
+                turboThreshold: 100000,
                 cursor: 'pointer',
                 point: {
                     events: {
