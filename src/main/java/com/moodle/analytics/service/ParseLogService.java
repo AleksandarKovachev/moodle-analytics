@@ -5,6 +5,7 @@ import com.moodle.analytics.repository.ConfigurationRepository;
 import com.moodle.analytics.repository.LogRecordRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -38,7 +39,8 @@ public class ParseLogService {
         String logDirectoryPath = configurationRepository.findById(1L).orElseThrow(IllegalArgumentException::new).getValue();
         try (Stream<Path> filePathStream = Files.walk(Paths.get(logDirectoryPath))) {
             filePathStream.forEach(filePath -> {
-                if (Files.isRegularFile(filePath) && logRecordRepository.findByFileName(filePath.getFileName().toString()).isEmpty()) {
+                if (Files.isRegularFile(filePath) &&
+                        logRecordRepository.findByFileName(filePath.getFileName().toString(), PageRequest.of(0, 1)).isEmpty()) {
                     try (BufferedReader reader = new BufferedReader(new BufferedReader(new InputStreamReader(
                             new FileInputStream(filePath.toFile()), StandardCharsets.UTF_8)))) {
                         String line;
@@ -79,13 +81,13 @@ public class ParseLogService {
 
         if (columns.length != 6) {
             log.error("The line '" + line + "' is with not proper format.");
-            logRecord.setError(true);
+            logRecord.setIsError(1);
             return;
         }
 
         Date logDate = getLogDate(date, line);
         if (logDate == null) {
-            logRecord.setError(true);
+            logRecord.setIsError(1);
             return;
         }
 
@@ -96,6 +98,7 @@ public class ParseLogService {
         logRecord.setDescription(columns[3]);
         logRecord.setOrigin(columns[4]);
         logRecord.setIpAddress(columns[5]);
+        logRecord.setIsError(0);
     }
 
     private Date getLogDate(String value, String line) {

@@ -14,7 +14,7 @@
 <section layout:fragment="body">
     <div class="container d-flex align-items-center flex-column">
 
-        <div class="card">
+        <div class="card top-buffer">
             <h3 class="card-header text-center font-weight-bold text-uppercase py-4" th:text="#{menu.configure}"></h3>
             <div class="card-body">
                 <div id="table" class="table-editable">
@@ -60,6 +60,8 @@
                 </div>
             </div>
         </div>
+
+        <div class="row" id="logErrors"></div>
     </div>
 </section>
 
@@ -71,6 +73,8 @@
                 var configurationId = this.id.split("configuration_")[1];
 				updateConfiguration(configurationId, $(this).text());
             })
+
+            loadLogErrors();
         });
 
         function updateConfiguration(id, value) {
@@ -106,6 +110,16 @@
 
                     $("#lastModifiedBy_" + response.id).text(response.lastModifiedBy);
                     $("#updatedTimestamp_" + response.id).text(updatedTimestamp);
+                }
+            });
+        }
+
+        function loadLogErrors() {
+            $.ajax({
+                type : 'GET',
+                url : "logRecord/error",
+                success : function(response) {
+                    $("#logErrors").html(response);
                 }
             });
         }

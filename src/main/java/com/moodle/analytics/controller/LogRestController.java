@@ -2,6 +2,7 @@ package com.moodle.analytics.controller;
 
 import com.moodle.analytics.constant.LineChartReportType;
 import com.moodle.analytics.constant.PieChartReportType;
+import com.moodle.analytics.entity.LogRecord;
 import com.moodle.analytics.error.exception.BadRequestException;
 import com.moodle.analytics.repository.LogRecordRepository;
 import com.moodle.analytics.resource.LogRecordByDate;
@@ -21,8 +22,8 @@ public class LogRestController {
 
     @GetMapping("/logRecord/lineChart")
     public List<LogRecordByDate> lineChart(@RequestParam LineChartReportType reportType,
-                                            @RequestParam(required = false) Long fromDate,
-                                            @RequestParam(required = false) Long toDate) {
+                                           @RequestParam(required = false) Long fromDate,
+                                           @RequestParam(required = false) Long toDate) {
         if (reportType == LineChartReportType.CUSTOM && fromDate == null && toDate == null) {
             throw BadRequestException.builder().build();
         }

@@ -38,7 +38,7 @@ public class LogRecord {
 
     private String ipAddress;
 
-    private boolean isError;
+    private int isError;
 
     private String fileName;
 

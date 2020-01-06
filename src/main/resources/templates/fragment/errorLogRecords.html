@@ -1,0 +1,39 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-spring4-4.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+</head>
+<body>
+<div th:fragment="errorLogRecords" id="errorLogRecords">
+    <th:block th:each="logErrorFile : ${logErrorFiles}">
+        <div class="card text-center top-buffer">
+            <h5 class="card-header" th:text="${logErrorFile.fileName}"></h5>
+            <div class="card-body">
+                <h5 class="card-title" th:text="#{log.file.errors}"></h5>
+
+                <div id="table" class="table-editable">
+                    <table class="table table-bordered table-responsive-md text-center">
+                        <thead>
+                        <tr>
+                            <th class="text-center" th:text="#{table.number}"></th>
+                            <th class="text-center" th:text="#{log.file.line.number}"></th>
+                            <th class="text-center" th:text="#{log.file.line}"></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <th:block th:each="logError, iteration : ${logErrorFile.logErrors}">
+                            <tr>
+                                <td class="pt-3-half" contenteditable="false" th:text="${iteration.index + 1}"></td>
+                                <td class="pt-3-half" contenteditable="false" th:text="${logError.lineNumber}"></td>
+                                <td class="pt-3-half" contenteditable="false" th:text="${logError.line}"></td>
+                            </tr>
+                        </th:block>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </th:block>
+</div>
+</body>
+</html>
