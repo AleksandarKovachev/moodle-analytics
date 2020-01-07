@@ -40,11 +40,11 @@
         </div>
 
         <div class="row justify-content-md-center top-buffer">
-            <div class="chart" id="linechart"></div>
+            <div class="chart" id="lineChart"></div>
         </div>
 
         <div class="row justify-content-md-center top-buffer">
-            <div class="col">
+            <div class="col px-md-5">
                 <div class="row justify-content-center top-buffer">
                     <div class="input-group">
                         <div class="input-group-prepend">
@@ -64,11 +64,26 @@
                 </div>
 
                 <div class="row">
-                    <div class="chart" id="piechart"></div>
+                    <div class="chart" id="pieChart"></div>
                 </div>
             </div>
-            <div class="col">
-                <div class="chart" id="heatmap"></div>
+            <div class="col px-md-5">
+                <div class="row justify-content-center top-buffer">
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <label class="input-group-text" for="columnChartReportTypeSelect"
+                                   th:text="#{report.type}"></label>
+                        </div>
+                        <select class="form-control input-sm" id="columnChartReportTypeSelect">
+                            <option value="DAY_OF_WEEK" th:text="#{column.report.day.of.week}" selected></option>
+                            <option value="HOUR_OF_DAY" th:text="#{column.report.hour.of.day}"></option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="chart" id="columnChart"></div>
+                </div>
             </div>
         </div>
     </div>
@@ -83,7 +98,6 @@
     <script src="https://code.highcharts.com/modules/accessibility.js"></script>
     <script src="https://www.highcharts.com/media/com_demo/js/highslide-full.min.js"></script>
     <script src="https://www.highcharts.com/media/com_demo/js/highslide.config.js" charset="utf-8"></script>
-    <script src="https://code.highcharts.com/modules/heatmap.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
     <script th:inline="javascript">
         $('#toDate').datepicker({format: 'dd/mm/yyyy'});
@@ -94,9 +108,9 @@
         var analyticsLogRecords = [[#{analytics.log.records}]];
         var errorDateInput = [[#{error.date.inputs}]];
     </script>
-    <script th:src="@{/js/linechart-analytics.js}"></script>
-    <script th:src="@{/js/piechart-analytics.js}"></script>
-    <script th:src="@{/js/heatmap-analytics.js}"></script>
+    <script th:src="@{/js/lineChart-analytics.js}"></script>
+    <script th:src="@{/js/pieChart-analytics.js}"></script>
+    <script th:src="@{/js/columnChart-analytics.js}"></script>
 </section>
 </body>
 </html>

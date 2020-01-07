@@ -1,4 +1,4 @@
-var piechart;
+var pieChart;
 
 $(document).ready(function() {
     $('#pieChartReportTypeSelect').on('change', function() {
@@ -9,9 +9,9 @@ $(document).ready(function() {
 });
 
 function initializePieChart(reportType) {
-    piechart = new Highcharts.Chart({
+    pieChart = new Highcharts.Chart({
         chart: {
-            renderTo: 'piechart',
+            renderTo: 'pieChart',
             plotBackgroundColor: null,
             plotBorderWidth: null,
             plotShadow: false,
@@ -19,6 +19,9 @@ function initializePieChart(reportType) {
             events: {
                 load: requestPieChartData(reportType)
             }
+        },
+        title: {
+            text: null
         },
         tooltip: {
             pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
@@ -47,7 +50,7 @@ function requestPieChartData(reportType) {
                 data.push({name: logRecord.value, y: logRecord.count});
             });
 
-            piechart.addSeries({
+            pieChart.addSeries({
                 name: reportType,
                 data: data
             });

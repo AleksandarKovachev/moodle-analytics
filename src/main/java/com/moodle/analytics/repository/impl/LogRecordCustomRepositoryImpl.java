@@ -1,14 +1,16 @@
 package com.moodle.analytics.repository.impl;
 
+import com.moodle.analytics.constant.ColumnChartReportType;
+import com.moodle.analytics.constant.DayOfWeek;
 import com.moodle.analytics.constant.LineChartReportType;
 import com.moodle.analytics.constant.PieChartReportType;
 import com.moodle.analytics.repository.LogRecordCustomRepository;
 import com.moodle.analytics.resource.LogRecordByDate;
-import com.moodle.analytics.resource.PieLogRecord;
+import com.moodle.analytics.resource.LogRecordTerm;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.script.Script;
 import org.elasticsearch.search.aggregations.Aggregation;
-import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramAggregationBuilder;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramInterval;
@@ -18,6 +20,7 @@ import org.elasticsearch.search.aggregations.bucket.range.Range;
 import org.elasticsearch.search.aggregations.bucket.terms.StringTerms;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
 
 import java.util.*;
@@ -28,8 +31,11 @@ public class LogRecordCustomRepositoryImpl implements LogRecordCustomRepository 
     @Autowired
     private ElasticsearchTemplate elasticsearchTemplate;
 
+    @Autowired
+    private MessageSource messageSource;
+
     @Override
-    public List<LogRecordByDate> getLogRecordsByDate(LineChartReportType lineChartReportType, Long fromDate, Long toDate) {
+    public List<LogRecordByDate> getLogRecordsForLineChart(LineChartReportType lineChartReportType, Long fromDate, Long toDate) {
         DateRangeAggregationBuilder dateRangeAggregationBuilder = prepareDateRangeAggregation(lineChartReportType, fromDate, toDate);
 
         DateHistogramAggregationBuilder dateHistogramAggregation = AggregationBuilders.dateHistogram("date")
@@ -66,7 +72,7 @@ public class LogRecordCustomRepositoryImpl implements LogRecordCustomRepository 
     }
 
     @Override
-    public List<PieLogRecord> getLogRecordsForPieChart(PieChartReportType reportType) {
+    public List<LogRecordTerm> getLogRecordsForPieChart(PieChartReportType reportType) {
         SearchResponse response = elasticsearchTemplate.getClient()
                 .prepareSearch("log_record")
                 .setQuery(QueryBuilders.matchAllQuery())
@@ -75,7 +81,23 @@ public class LogRecordCustomRepositoryImpl implements LogRecordCustomRepository 
         List<StringTerms.Bucket> buckets = ((StringTerms) response.getAggregations().asMap().get("report")).getBuckets();
         return buckets
                 .stream()
-                .map(bucket -> new PieLogRecord(bucket.getKeyAsString(), bucket.getDocCount()))
+                .map(bucket -> new LogRecordTerm(bucket.getKeyAsString(), bucket.getDocCount()))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<LogRecordTerm> getLogRecordsForColumnChart(ColumnChartReportType reportType) {
+        SearchResponse response = elasticsearchTemplate.getClient()
+                .prepareSearch("log_record")
+                .setQuery(QueryBuilders.matchAllQuery())
+                .addAggregation(AggregationBuilders.terms("report").script(new Script(reportType.getScript())))
+                .execute().actionGet();
+        List<StringTerms.Bucket> buckets = ((StringTerms) response.getAggregations().asMap().get("report")).getBuckets();
+        return buckets
+                .stream()
+                .map(bucket -> new LogRecordTerm(reportType == ColumnChartReportType.DAY_OF_WEEK ?
+                        DayOfWeek.fromDayOfWeek(Integer.parseInt(bucket.getKeyAsString())).getDayName(messageSource) :
+                        bucket.getKeyAsString(), bucket.getDocCount()))
                 .collect(Collectors.toList());
     }
 

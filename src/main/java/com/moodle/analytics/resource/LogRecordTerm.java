@@ -9,7 +9,7 @@ import java.util.Date;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class PieLogRecord {
+public class LogRecordTerm {
 
     private String value;
 

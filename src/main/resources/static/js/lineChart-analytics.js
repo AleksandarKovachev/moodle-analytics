@@ -44,7 +44,7 @@ $(document).ready(function() {
 function initializeLineChart(reportType, fromDate, toDate) {
     lineChart = new Highcharts.Chart({
         chart: {
-            renderTo: 'linechart',
+            renderTo: 'lineChart',
             type: 'line',
             reflow: true,
             events: {
@@ -52,10 +52,7 @@ function initializeLineChart(reportType, fromDate, toDate) {
             }
         },
         title: {
-            text: analyticsEventTitle
-        },
-        subtitle: {
-            text: analyticsEventSubtitle
+            text: null
         },
         xAxis: {
             tickInterval: getTickTime(reportType, fromDate, toDate),
@@ -115,7 +112,7 @@ function initializeLineChart(reportType, fromDate, toDate) {
                                 },
                                 headingText: this.series.name,
                                 maincontentText: Highcharts.dateFormat('%A, %b %e, %Y', this.x) + ':<br/> ' +
-                                    this.y + ' sessions',
+                                    this.y + ' logs',
                                 width: 200
                             });
                         }
