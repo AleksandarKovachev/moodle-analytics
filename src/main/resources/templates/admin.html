@@ -1,0 +1,66 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-spring4-4.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{/layout/BaseLayout}">
+<head>
+    <title th:text="#{menu.admin}"></title>
+</head>
+<body>
+<section layout:fragment="body">
+    <div class="container mt-5 h-100">
+        <div class="card bg-light mx-auto" style="max-width: 450px;">
+            <div class="card-body">
+                <div th:replace="fragment/Messages :: messages"></div>
+                <h4 class="card-title mt-3 text-center" th:text="#{input.add.user}"></h4>
+
+                <form th:action="@{/admin}" method="POST" th:object="${form}">
+                    <div class="form-group input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fa fa-user"></i></span>
+                        </div>
+                        <input type="text" class="form-control" id="username"
+                               name="username" th:placeholder="#{input.username}"
+                               th:field="*{username}">
+                    </div>
+                    <div class="form-group input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fa fa-lock"></i></span>
+                        </div>
+                        <input type="password" class="form-control" id="password"
+                               name="password" th:placeholder="#{input.password}"
+                               th:field="*{password}">
+                    </div>
+                    <div class="form-group input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fa fa-user"></i></span>
+                        </div>
+                        <input type="text" class="form-control" id="firstName"
+                               name="firstName" th:placeholder="#{input.first.name}"
+                               th:field="*{firstName}">
+                    </div>
+                    <div class="form-group input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fa fa-user"></i></span>
+                        </div>
+                        <input type="text" class="form-control" id="lastName"
+                               name="lastName" th:placeholder="#{input.last.name}"
+                               th:field="*{lastName}">
+                    </div>
+                    <div class="form-group input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fa fa-envelope"></i></span>
+                        </div>
+                        <input type="email" class="form-control" id="email" name="email"
+                               th:placeholder="#{input.email}" th:field="*{email}">
+                    </div>
+                    <div class="form-row align-items-center d-flex justify-content-center mt-3">
+                        <button type="submit" class="btn btn-primary btn-block" th:text="#{input.add.user}"></button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+</html>

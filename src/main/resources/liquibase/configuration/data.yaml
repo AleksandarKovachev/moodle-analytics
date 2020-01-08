@@ -6,4 +6,4 @@ databaseChangeLog:
         - sql:
             sql: insert into configuration (name, value, last_modified_by, version) values ('Log Directory', 'C:\\Users\\PC\\Documents\\moodle-logs', 'liquibase', 0)
         - sql:
-            sql: insert into configuration (name, value, last_modified_by, version) values ('Log synchronization job', '1 hour', 'liquibase', 0)
+            sql: insert into configuration (name, value, last_modified_by, version) values ('Log synchronization job', '60000', 'liquibase', 0)

@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.thymeleaf.org http://www.thymeleaf.org">
+
+<div th:fragment="messages">
+    <div th:if="${errors != null && !errors.isEmpty()}" th:each="error : ${errors}"
+         class="d-flex justify-content-center alert alert-danger">
+        <span th:text="${error}"></span>
+    </div>
+
+    <div th:if="${message != null && !message.isEmpty()}"
+         class="d-flex justify-content-center alert alert-success">
+        <span th:text="${message}"></span>
+    </div>
+</div>
+</html>

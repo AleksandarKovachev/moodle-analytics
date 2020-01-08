@@ -21,6 +21,8 @@
                 <a sec:authorize="isAnonymous()" class="nav-item nav-link"
                    th:href="@{/login}" th:text="#{menu.login}"></a>
                 <a sec:authorize="hasRole('ROLE_ADMIN')" class="nav-item nav-link"
+                   th:href="@{/admin}" th:text="#{menu.admin}"></a>
+                <a sec:authorize="hasRole('ROLE_ADMIN')" class="nav-item nav-link"
                    th:href="@{/configure}" th:text="#{menu.configure}"></a>
                 <a sec:authorize="isAuthenticated()" class="nav-item nav-link"
                    th:href="@{/analytics}" th:text="#{menu.analytics}"></a>

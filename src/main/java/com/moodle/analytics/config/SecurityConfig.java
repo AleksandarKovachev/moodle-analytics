@@ -49,6 +49,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .authorizeRequests().antMatchers("/logRecord/error").authenticated()
                 .and()
+                .authorizeRequests().antMatchers("/admin").hasRole("ADMIN")
+                .and()
                 .authorizeRequests().anyRequest().permitAll();
     }
 
