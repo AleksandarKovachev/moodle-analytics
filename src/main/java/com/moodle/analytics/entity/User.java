@@ -29,6 +29,10 @@ public class User implements UserDetails {
 
     private String email;
 
+    private String firstName;
+
+    private String lastName;
+
     private boolean enabled;
 
     private boolean accountNonExpired;

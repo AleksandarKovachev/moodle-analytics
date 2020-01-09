@@ -1,36 +1,54 @@
 package com.moodle.analytics.controller;
 
 import com.moodle.analytics.entity.Configuration;
-import com.moodle.analytics.entity.LogRecord;
 import com.moodle.analytics.entity.SyncJob;
-import com.moodle.analytics.repository.LogRecordRepository;
-import com.moodle.analytics.resource.LogError;
-import com.moodle.analytics.resource.LogErrorFile;
+import com.moodle.analytics.entity.User;
+import com.moodle.analytics.form.UserForm;
+import com.moodle.analytics.repository.RoleRepository;
+import com.moodle.analytics.repository.UserRepository;
 import com.moodle.analytics.service.ConfigurationService;
+import com.moodle.analytics.service.LogRecordService;
+import com.moodle.analytics.service.UserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.util.CollectionUtils;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.Validator;
 import java.security.Principal;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 @Controller
 public class AdminController {
 
     @Autowired
-    private LogRecordRepository logRecordRepository;
+    private LogRecordService logRecordService;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private UserDetailsServiceImpl userDetailsService;
+
+    @Autowired
+    private RoleRepository roleRepository;
 
     @Autowired
     private ConfigurationService configurationService;
+
+    @Autowired
+    private Validator validator;
+
+    @Autowired
+    private MessageSource messageSource;
 
     @GetMapping("/configure")
     public ModelAndView configure() {
@@ -49,44 +67,53 @@ public class AdminController {
     @GetMapping("/logRecord/error")
     public ModelAndView errorLogRecord() {
         ModelMap modelMap = new ModelMap();
-        modelMap.addAttribute("logErrorFiles", getLogErrorFiles());
+        modelMap.addAttribute("logErrorFiles", logRecordService.getLogErrorFiles());
         return new ModelAndView("fragment/errorLogRecords", modelMap);
     }
 
-    private List<LogErrorFile> getLogErrorFiles() {
-        List<LogRecord> logRecords = logRecordRepository.findByIsErrorOrderByRecordSequenceAsc(1);
-        List<LogErrorFile> logErrorFiles = new ArrayList<>();
-        for (LogRecord logRecord : logRecords) {
-            List<LogErrorFile> logErrorFileList = logErrorFiles
-                    .stream()
-                    .filter(l -> logRecord.getFileName().equals(l.getFileName()))
-                    .collect(Collectors.toList());
-            if (logErrorFileList.isEmpty()) {
-                LogErrorFile logErrorFile = getLogErrorFile(logRecord);
-                List<LogError> logErrors = new ArrayList<>();
-                logErrors.add(getLogError(logRecord));
-                logErrorFile.setLogErrors(logErrors);
-                logErrorFiles.add(logErrorFile);
-            } else {
-                logErrorFileList.get(0).getLogErrors().add(getLogError(logRecord));
-            }
+    @GetMapping("/admin")
+    public ModelAndView admin(@ModelAttribute UserForm form) {
+        ModelMap modelMap = new ModelMap();
+        modelMap.addAttribute("form", form);
+        modelMap.addAttribute("roles", roleRepository.findAll());
+        return new ModelAndView("admin", modelMap);
+    }
+
+    @PostMapping("/admin")
+    public ModelAndView addUser(@ModelAttribute UserForm form) {
+        ModelMap modelMap = new ModelMap();
+
+        List<String> errors = validator
+                .validate(form)
+                .stream()
+                .map(ConstraintViolation::getMessage)
+                .collect(Collectors.toList());
+        validateRegisteredUserFields(form, errors);
+
+        if (CollectionUtils.isEmpty(errors)) {
+            userDetailsService.addUser(form);
+            modelMap.addAttribute("message",
+                    messageSource.getMessage("successfully.added.user", null, Locale.getDefault()));
+            modelMap.addAttribute("form", new UserForm());
+        } else {
+            modelMap.addAttribute("errors", errors);
+            modelMap.addAttribute("form", form);
         }
-        return logErrorFiles;
+
+        modelMap.addAttribute("roles", roleRepository.findAll());
+        return new ModelAndView("admin", modelMap);
     }
 
-    private LogErrorFile getLogErrorFile(LogRecord logRecord) {
-        LogErrorFile logErrorFile = new LogErrorFile();
-        logErrorFile.setFileName(logRecord.getFileName());
-        logErrorFile.setDirectory(logRecord.getDirectory());
-        logErrorFile.setFileDate(logRecord.getFileDate());
-        return logErrorFile;
-    }
+    private void validateRegisteredUserFields(UserForm form, List<String> errors) {
+        User user = userRepository.findByUsername(form.getUsername());
+        if (user != null) {
+            errors.add(messageSource.getMessage("username.registered", null, Locale.getDefault()));
+        }
 
-    private LogError getLogError(LogRecord logRecord) {
-        LogError logError = new LogError();
-        logError.setLine(logRecord.getRawLine());
-        logError.setLineNumber(logRecord.getRecordSequence());
-        return logError;
+        user = userRepository.findByEmail(form.getEmail());
+        if (user != null) {
+            errors.add(messageSource.getMessage("email.registered", null, Locale.getDefault()));
+        }
     }
 
 }
