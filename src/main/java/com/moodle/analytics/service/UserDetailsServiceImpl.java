@@ -33,7 +33,7 @@ class UserDetailsServiceImpl implements UserDetailsService {
         if (StringUtils.isEmpty(username)) {
             throw new UsernameNotFoundException(username);
         }
-        return userRepository.findByUsername(username);
+        return userRepository.findByUsernameAndEnabled(username, true);
     }
 
     public UserDetails addUser(UserForm form) {

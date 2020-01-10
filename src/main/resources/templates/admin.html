@@ -5,11 +5,60 @@
       layout:decorate="~{/layout/BaseLayout}">
 <head>
     <title th:text="#{menu.admin}"></title>
+    <link rel="stylesheet" crossorigin="anonymous"
+          href="https://cdn.rawgit.com/FezVrasta/snackbarjs/1.1.0/dist/snackbar.min.css">
+    <link rel="stylesheet" crossorigin="anonymous"
+          href="http://fezvrasta.github.io/snackbarjs/themes-css/material.css">
 </head>
 <body>
 <section layout:fragment="body">
     <div class="container mt-5 h-100">
-        <div class="card bg-light mx-auto" style="max-width: 450px;">
+
+        <div class="card">
+            <div id="table" class="table-editable">
+                <table class="table table-bordered table-responsive-md text-center">
+                    <thead>
+                    <tr>
+                        <th class="text-center" th:text="#{table.number}"></th>
+                        <th class="text-center" th:text="#{input.username}"></th>
+                        <th class="text-center" th:text="#{input.first.name}"></th>
+                        <th class="text-center" th:text="#{input.last.name}"></th>
+                        <th class="text-center" th:text="#{input.email}"></th>
+                        <th class="text-center" th:text="#{input.role}"></th>
+                        <th class="text-center" th:text="#{table.action}"></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <th:block th:each="user, iteration : ${users}">
+                        <tr>
+                            <td class="pt-3-half" contenteditable="false" th:text="${iteration.index + 1}"></td>
+                            <td class="pt-3-half" contenteditable="false" th:text="${user.username}"></td>
+                            <td class="pt-3-half" contenteditable="false" th:text="${user.firstName}"></td>
+                            <td class="pt-3-half" contenteditable="false" th:text="${user.lastName}"></td>
+                            <td class="pt-3-half" contenteditable="false" th:text="${user.email}"></td>
+                            <td class="pt-3-half" contenteditable="false" th:text="${user.role.name}"></td>
+                            <td class="pt-3-half" contenteditable="false">
+                                <button type="button" class="btn btn-danger"
+                                        th:id="'disable_' + ${user.id}"
+                                        th:data-id="${user.id}"
+                                        th:classappend="${user.enabled && user.username != #authentication.getPrincipal().getUsername()}  ? '' : 'hidden'"
+                                        th:text="#{input.disable}"
+                                        onclick="changeUserStatus(this.getAttribute('data-id'), 'disable');"></button>
+                                <button type="button" class="btn btn-success"
+                                        th:data-id="${user.id}"
+                                        th:id="'enable_' + ${user.id}"
+                                        th:classappend="${!user.enabled && user.username != #authentication.getPrincipal().getUsername()} ? '' : 'hidden'"
+                                        th:text="#{input.enable}"
+                                        onclick="changeUserStatus(this.getAttribute('data-id'), 'enable');"></button>
+                            </td>
+                        </tr>
+                    </th:block>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card bg-light mx-auto top-buffer" style="max-width: 450px;">
             <div class="card-body">
                 <div th:replace="fragment/Messages :: messages"></div>
                 <h4 class="card-title mt-3 text-center" th:text="#{input.add.user}"></h4>
@@ -64,12 +113,38 @@
                     </div>
 
                     <div class="form-row align-items-center d-flex justify-content-center mt-3">
-                        <button type="submit" class="btn btn-primary btn-block" th:text="#{input.add.user}"></button>
+                        <button type="submit" class="btn btn-primary btn-block"
+                                th:text="#{input.add.user}"></button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
+</section>
+<section layout:fragment="js">
+    <script src="https://cdn.rawgit.com/FezVrasta/snackbarjs/1.1.0/dist/snackbar.min.js"></script>
+    <script th:inline="javascript">
+        function changeUserStatus(id, status) {
+            $.ajax({
+                type : 'PATCH',
+                url : "/user/status/" + id,
+                error : function(error) {
+                    $.snackbar({content: /*[[#{error.response}]]*/, style: "toast", timeout: 2000});
+                },
+                success : function(response) {
+                    $.snackbar({content: /*[[#{successfully.changed.user.status}]]*/, style: "toast", timeout: 2000});
+
+                    if (status == 'disable') {
+                        $("#disable_" + id).hide();
+                        $("#enable_" + id).show();
+                    } else {
+                        $("#disable_" + id).show();
+                        $("#enable_" + id).hide();
+                    }
+                }
+            });
+        }
+    </script>
 </section>
 </body>
 </html>

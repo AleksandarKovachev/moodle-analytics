@@ -5,6 +5,7 @@ import lombok.Data;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Positive;
+import javax.validation.constraints.Size;
 
 @Data
 public class UserForm {
@@ -13,6 +14,7 @@ public class UserForm {
     private String username;
 
     @NotBlank(message = "{password.empty}")
+    @Size(min = 6, message = "{password.size}")
     private String password;
 
     @NotBlank(message = "{first.name.empty}")

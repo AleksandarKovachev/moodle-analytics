@@ -12,9 +12,11 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.script.Script;
 import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.BucketOrder;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramAggregationBuilder;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramInterval;
 import org.elasticsearch.search.aggregations.bucket.histogram.InternalDateHistogram;
+import org.elasticsearch.search.aggregations.bucket.histogram.InternalHistogram;
 import org.elasticsearch.search.aggregations.bucket.range.DateRangeAggregationBuilder;
 import org.elasticsearch.search.aggregations.bucket.range.Range;
 import org.elasticsearch.search.aggregations.bucket.terms.StringTerms;
@@ -90,14 +92,18 @@ public class LogRecordCustomRepositoryImpl implements LogRecordCustomRepository 
         SearchResponse response = elasticsearchTemplate.getClient()
                 .prepareSearch("log_record")
                 .setQuery(QueryBuilders.matchAllQuery())
-                .addAggregation(AggregationBuilders.terms("report").script(new Script(reportType.getScript())))
+                .addAggregation(
+                        AggregationBuilders.histogram("report")
+                                .interval(1)
+                                .script(new Script(reportType.getScript()))
+                                .order(BucketOrder.count(false)))
                 .execute().actionGet();
-        List<StringTerms.Bucket> buckets = ((StringTerms) response.getAggregations().asMap().get("report")).getBuckets();
+        List<InternalHistogram.Bucket> buckets = ((InternalHistogram) response.getAggregations().asMap().get("report")).getBuckets();
         return buckets
                 .stream()
                 .map(bucket -> new LogRecordTerm(reportType == ColumnChartReportType.DAY_OF_WEEK ?
-                        DayOfWeek.fromDayOfWeek(Integer.parseInt(bucket.getKeyAsString())).getDayName(messageSource) :
-                        bucket.getKeyAsString(), bucket.getDocCount()))
+                        DayOfWeek.fromDayOfWeek(Double.valueOf(bucket.getKeyAsString()).intValue()).getDayName(messageSource) :
+                        String.valueOf(Double.valueOf(bucket.getKeyAsString()).intValue()), bucket.getDocCount()))
                 .collect(Collectors.toList());
     }
 

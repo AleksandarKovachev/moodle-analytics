@@ -3,6 +3,7 @@ package com.moodle.analytics.controller;
 import com.moodle.analytics.entity.Configuration;
 import com.moodle.analytics.entity.SyncJob;
 import com.moodle.analytics.entity.User;
+import com.moodle.analytics.error.exception.NotFoundException;
 import com.moodle.analytics.form.UserForm;
 import com.moodle.analytics.repository.RoleRepository;
 import com.moodle.analytics.repository.UserRepository;
@@ -76,6 +77,7 @@ public class AdminController {
         ModelMap modelMap = new ModelMap();
         modelMap.addAttribute("form", form);
         modelMap.addAttribute("roles", roleRepository.findAll());
+        modelMap.addAttribute("users", userRepository.findAll());
         return new ModelAndView("admin", modelMap);
     }
 
@@ -101,16 +103,28 @@ public class AdminController {
         }
 
         modelMap.addAttribute("roles", roleRepository.findAll());
+        modelMap.addAttribute("users", userRepository.findAll());
         return new ModelAndView("admin", modelMap);
     }
 
+    @PatchMapping("/user/status/{id}")
+    public ResponseEntity<Void> user(@PathVariable Long id) {
+        User user = userRepository.findById(id).orElse(null);
+        if (user == null) {
+            throw NotFoundException.builder().entityNotFound().build();
+        }
+        user.setEnabled(!user.isEnabled());
+        userRepository.save(user);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
     private void validateRegisteredUserFields(UserForm form, List<String> errors) {
-        User user = userRepository.findByUsername(form.getUsername());
+        User user = userRepository.findByUsernameAndEnabled(form.getUsername(), true);
         if (user != null) {
             errors.add(messageSource.getMessage("username.registered", null, Locale.getDefault()));
         }
 
-        user = userRepository.findByEmail(form.getEmail());
+        user = userRepository.findByEmailAndEnabled(form.getEmail(), true);
         if (user != null) {
             errors.add(messageSource.getMessage("email.registered", null, Locale.getDefault()));
         }

@@ -27,6 +27,8 @@
                 <a sec:authorize="isAuthenticated()" class="nav-item nav-link"
                    th:href="@{/analytics}" th:text="#{menu.analytics}"></a>
                 <a sec:authorize="isAuthenticated()" class="nav-item nav-link"
+                   th:href="@{/changePassword}" th:text="#{menu.change.password}"></a>
+                <a sec:authorize="isAuthenticated()" class="nav-item nav-link"
                    th:href="@{/logout}" th:text="#{menu.logout}"></a>
             </div>
         </div>
