@@ -31,6 +31,20 @@
                 <a sec:authorize="isAuthenticated()" class="nav-item nav-link"
                    th:href="@{/logout}" th:text="#{menu.logout}"></a>
             </div>
+
+            <div class="navbar-nav ml-auto">
+                <div class="dropdown">
+                    <button class="btn btn-primary-outline text-light dropdown-toggle" type="button"
+                            id="languageDropdownButton"
+                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fa fa-globe"></i> [[#{menu.language}]]
+                    </button>
+                    <div class="dropdown-menu" aria-labelledby="languageDropdownButton">
+                        <button class="dropdown-item" th:text="#{menu.bulgarian}" onclick="setLocale('bg');"></button>
+                        <button class="dropdown-item" th:text="#{menu.english}" onclick="setLocale('en');"></button>
+                    </div>
+                </div>
+            </div>
         </div>
     </nav>
 </div>
