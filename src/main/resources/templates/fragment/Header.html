@@ -8,8 +8,7 @@
 <div th:fragment="header">
     <nav class="navbar sticky-top navbar-expand-lg navbar-dark bg-primary">
         <a class="navbar-brand" th:href="@{/}">
-            <img src="https://lh3.googleusercontent.com/WETi4kiHx6KfyGBDsZ1-jgPdAATt8n6Fq4tK05TOBe_z6NxsoWjrGkDyy8PIW29pvJw"
-                 style="max-width: 50px;"> [[#{logo}]]
+            <img th:src="@{/images/moodle.png}" style="max-width: 50px;"> [[#{logo}]]
         </a>
         <button class="navbar-toggler" type="button" data-toggle="collapse"
                 data-target="#navBar" aria-controls="navBar" aria-expanded="false"
