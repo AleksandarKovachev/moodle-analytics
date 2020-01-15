@@ -33,8 +33,8 @@ public enum DayOfWeek {
         return null;
     }
 
-    public String getDayName(MessageSource messageSource) {
-        return messageSource.getMessage(name().toLowerCase(), null, Locale.getDefault());
+    public String getDayName(MessageSource messageSource, Locale locale) {
+        return messageSource.getMessage(name().toLowerCase(), null, locale);
     }
 
 }

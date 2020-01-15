@@ -7,6 +7,7 @@ import com.moodle.analytics.resource.LogRecordByDate;
 import com.moodle.analytics.resource.LogRecordTerm;
 
 import java.util.List;
+import java.util.Locale;
 
 public interface LogRecordCustomRepository {
 
@@ -14,6 +15,6 @@ public interface LogRecordCustomRepository {
 
     List<LogRecordTerm> getLogRecordsForPieChart(PieChartReportType reportType);
 
-    List<LogRecordTerm> getLogRecordsForColumnChart(ColumnChartReportType reportType);
+    List<LogRecordTerm> getLogRecordsForColumnChart(ColumnChartReportType reportType, Locale locale);
 
 }

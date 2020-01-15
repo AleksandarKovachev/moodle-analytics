@@ -88,7 +88,7 @@ public class LogRecordCustomRepositoryImpl implements LogRecordCustomRepository 
     }
 
     @Override
-    public List<LogRecordTerm> getLogRecordsForColumnChart(ColumnChartReportType reportType) {
+    public List<LogRecordTerm> getLogRecordsForColumnChart(ColumnChartReportType reportType, Locale locale) {
         SearchResponse response = elasticsearchTemplate.getClient()
                 .prepareSearch("log_record")
                 .setQuery(QueryBuilders.matchAllQuery())
@@ -102,7 +102,7 @@ public class LogRecordCustomRepositoryImpl implements LogRecordCustomRepository 
         return buckets
                 .stream()
                 .map(bucket -> new LogRecordTerm(reportType == ColumnChartReportType.DAY_OF_WEEK ?
-                        DayOfWeek.fromDayOfWeek(Double.valueOf(bucket.getKeyAsString()).intValue()).getDayName(messageSource) :
+                        DayOfWeek.fromDayOfWeek(Double.valueOf(bucket.getKeyAsString()).intValue()).getDayName(messageSource, locale) :
                         String.valueOf(Double.valueOf(bucket.getKeyAsString()).intValue()), bucket.getDocCount()))
                 .collect(Collectors.toList());
     }

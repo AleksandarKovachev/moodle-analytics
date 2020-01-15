@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Locale;
 
 @RestController
 public class LogRestController {
@@ -36,8 +37,8 @@ public class LogRestController {
     }
 
     @GetMapping("/logRecord/columnChart")
-    public List<LogRecordTerm> columnChart(@RequestParam ColumnChartReportType reportType) {
-        return logRecordRepository.getLogRecordsForColumnChart(reportType);
+    public List<LogRecordTerm> columnChart(@RequestParam ColumnChartReportType reportType, Locale locale) {
+        return logRecordRepository.getLogRecordsForColumnChart(reportType, locale);
     }
 
 }
